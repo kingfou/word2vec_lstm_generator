@@ -13,7 +13,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 class NLTKPreprocessor(BaseEstimator, TransformerMixin):
 
     def __init__(self, stopwords=None, punct=None,
-                 lower=True, strip=True, ignore_type=['N']):
+                 lower=True, strip=True, ignore_type=[]):
         self.lower = lower
         self.strip = strip
         self.ignore_type = ignore_type
