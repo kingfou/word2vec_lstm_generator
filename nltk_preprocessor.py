@@ -1,6 +1,3 @@
-import string
-
-from nltk.corpus import stopwords as sw
 from nltk.corpus import wordnet as wn
 from nltk import wordpunct_tokenize
 from nltk import WordNetLemmatizer
@@ -12,13 +9,14 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 class NLTKPreprocessor(BaseEstimator, TransformerMixin):
 
-    def __init__(self, stopwords=None, punct=None,
-                 lower=True, strip=True, ignore_type=[]):
+    def __init__(self, stopwords=[], punct=[],
+                 lower=True, strip=True, lemmatize=True, ignore_type=[]):
         self.lower = lower
         self.strip = strip
         self.ignore_type = ignore_type
-        self.stopwords = stopwords or set(sw.words('english'))
-        self.punct = punct or set(string.punctuation)
+        self.stopwords = stopwords
+        self.punct = punct
+        self.lemmatize = lemmatize
         self.lemmatizer = WordNetLemmatizer()
 
     def fit(self, X, y=None):
@@ -45,9 +43,12 @@ class NLTKPreprocessor(BaseEstimator, TransformerMixin):
 
                 if all(char in self.punct for char in token):
                     continue
-
-                lemma = self.lemmatize(token, tag, self.ignore_type)
-                yield lemma
+                
+                if self.lemmatize:
+                    lemma = self.lemmatize(token, tag, self.ignore_type)
+                    yield lemma
+                else:
+                    yield token
 
     def lemmatize(self, token, tag, ignore_type=['N']):
         tag = {

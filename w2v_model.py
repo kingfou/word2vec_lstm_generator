@@ -5,12 +5,13 @@ from sklearn.base import BaseEstimator, TransformerMixin
 # from sklearn.feature_extraction.text import TfidfVectorizer
 
 WORD2VEC = None
+WORD2VEC_FILE = 'glove/glove.6B.100d.txt'
 
 def init_w2v():
     global WORD2VEC
     if not WORD2VEC:
-        print('Importing glove.6B.100d.txt...')
-        with open('glove/glove.6B.100d.txt', 'r') as lines:
+        print('Importing %s...' % WORD2VEC_FILE)
+        with open(WORD2VEC_FILE, 'r') as lines:
             WORD2VEC = {
                 line.split()[0]: np.array(list(map(float, line.split()[1:])))
                 for line in lines
@@ -20,7 +21,7 @@ def init_w2v():
 
 class Word2VecVectorizer(BaseEstimator, TransformerMixin):
 
-    def __init__(self, word2vec=None, sent_size=64):
+    def __init__(self, word2vec=None, sent_size=7):
         self.word2vec = word2vec or init_w2v()
         self.punct = list(set(string.punctuation))
         self.sent_size = sent_size
@@ -31,7 +32,7 @@ class Word2VecVectorizer(BaseEstimator, TransformerMixin):
 
     def get_weight(punct):
         return np.append(np.zeros(w2v_dim),
-            [1.0 if punct=X else 0.0 for X in self.punct])
+            [1.0 if punct == X else 0.0 for X in self.punct])
 
     def fit(self, X, y):
         # tfidf = TfidfVectorizer(analyzer=lambda x: x)
