@@ -28,68 +28,33 @@ class Word2VecVectorizer(BaseEstimator, TransformerMixin):
         # if a text is empty we should return a vector of zeros
         # with the same dimensionality as all the other vectors
         self.w2v_dim = len(iter(self.word2vec.values()).__next__())
-        self.dim =  self.w2v_dim + len(self.punct)
+        self.punct_length = len(self.punct)
+        self.dim =  self.w2v_dim + self.punct_length
 
-    def get_weight(punct):
-        return np.append(np.zeros(w2v_dim),
+    def get_weight(self, punct):
+        return np.append(np.zeros(self.w2v_dim),
             [1.0 if punct == X else 0.0 for X in self.punct])
 
-    def fit(self, X, y):
-        # tfidf = TfidfVectorizer(analyzer=lambda x: x)
-        # tfidf.fit(X)
-        # max_idf = max(tfidf.idf_)
-        # self.word2weight = defaultdict(
-        #     lambda: max_idf,
-        #     [(w, tfidf.idf_[i]) for w, i in tfidf.vocabulary_.items()])
+    def transform_single(self, w):
+        return np.pad(self.word2vec[w], (0, self.punct_length), 'constant') \
+            if w in self.word2vec.keys() \
+            else self.get_weight(w)
 
+    def fit(self, X, y):
         return self
 
     def transform(self, X):
-        return np.array([
-            self.transform_sent(words) for words in X
-        ])
+        return self.transform_sent(X)
 
     def transform_sent(self, X):
-        """
-        Returns 3d array
-
-        """
         pad_size = self.sent_size - len(X)
         if pad_size > 0:
             return np.pad([
-                self.word2vec.get(w, self.get_weight(w)) 
+                self.transform_single(w)
                 for w in X
             ], ((0, pad_size), (0, 0)), 'constant')
         else:
             return np.array([
-                self.word2vec.get(w, self.get_weight(w)) 
+                self.transform_single(w)
                 for w in X[:self.sent_size]
             ])
-        """
-        Code for tf-idf mean
-        pad_size = self.sent_size - len(X)
-        if pad_size > 0:
-            return np.pad([
-                np.mean(self.word2vec.get(w, [np.zeros(self.dim)]) * self.word2weight[w])
-                for w in X
-            ], (0, pad_size), 'constant')
-        else:
-            return np.array([
-                np.mean(self.word2vec.get(w, [np.zeros(self.dim)]) * self.word2weight[w])
-                for w in X[:self.sent_size]
-            ])
-        """
-        """
-        Code for 2d array
-        pad_size = self.sent_size - len(X)
-        if pad_size > 0:
-            return np.pad([
-                np.mean(self.word2vec.get(w, [np.zeros(self.dim)]))
-                for w in X
-            ], (0, pad_size), 'constant')
-        else:
-            return np.array([
-                np.mean(self.word2vec.get(w, [np.zeros(self.dim)]))
-                for w in X[:self.sent_size]
-            ])
-        """
