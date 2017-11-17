@@ -44,6 +44,8 @@ class Word2VecVectorizer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        if not X:
+            return np.zeros((self.sent_size, self.dim), dtype='float16')
         return self.transform_sent(X)
 
     def transform_sent(self, X):
@@ -52,7 +54,7 @@ class Word2VecVectorizer(BaseEstimator, TransformerMixin):
             return np.pad([
                 self.transform_single(w)
                 for w in X
-            ], (0, pad_size), 'constant')
+            ], ((0, pad_size), (0, 0)), 'constant')
         else:
             return np.array([
                 self.transform_single(w)

@@ -39,13 +39,17 @@ def get_train_data():
     X_train = []
     y_train = []
 
-    data = [read_all_txt()]
+    data = [file_content for file_content in read_all_txt()]
     data = get_data(data)
     data = [window(file_content, WINDOW_SIZE) for file_content in data]
 
-    for X, y in data:
-        X_train.append(vectorizer.transform(X))
-        y_train.append(vectorizer.transform_single(y[0]))
+    for item in data:
+        for X, y in item:
+            X_point = vectorizer.transform(X)
+            y_point = vectorizer.transform_single(y[0])
+            X_train.append(X_point)
+            y_train.append(y_point)
 
-    X_train = np.array(X_train, dtype='float16')
+    X_train = np.array(X_train)
+    y_train = np.array(y_train)
     return (X_train, y_train)

@@ -16,7 +16,7 @@ class NLTKPreprocessor(BaseEstimator, TransformerMixin):
         self.ignore_type = ignore_type
         self.stopwords = stopwords
         self.punct = punct
-        self.lemmatize = lemmatize
+        self.do_lemmatize = lemmatize
         self.lemmatizer = WordNetLemmatizer()
 
     def fit(self, X, y=None):
@@ -44,7 +44,7 @@ class NLTKPreprocessor(BaseEstimator, TransformerMixin):
                 if all(char in self.punct for char in token):
                     continue
                 
-                if self.lemmatize:
+                if self.do_lemmatize:
                     lemma = self.lemmatize(token, tag, self.ignore_type)
                     yield lemma
                 else:
