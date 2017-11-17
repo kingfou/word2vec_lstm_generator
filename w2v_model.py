@@ -13,7 +13,7 @@ def init_w2v():
         print('Importing %s...' % WORD2VEC_FILE)
         with open(WORD2VEC_FILE, 'r') as lines:
             WORD2VEC = {
-                line.split()[0]: np.array(list(map(float, line.split()[1:])))
+                line.split()[0]: np.array(list(map(float, line.split()[1:])), dtype='float16')
                 for line in lines
             }
     return WORD2VEC
@@ -32,8 +32,8 @@ class Word2VecVectorizer(BaseEstimator, TransformerMixin):
         self.dim =  self.w2v_dim + self.punct_length
 
     def get_weight(self, punct):
-        return np.append(np.zeros(self.w2v_dim),
-            [1.0 if punct == X else 0.0 for X in self.punct])
+        return np.append(np.zeros(self.w2v_dim, dtype='float16'),
+            np.array([1.0 if punct == X else 0.0 for X in self.punct], dtype='float16'))
 
     def transform_single(self, w):
         return np.pad(self.word2vec[w], (0, self.punct_length), 'constant') \
@@ -52,7 +52,7 @@ class Word2VecVectorizer(BaseEstimator, TransformerMixin):
             return np.pad([
                 self.transform_single(w)
                 for w in X
-            ], ((0, pad_size), (0, 0)), 'constant')
+            ], (0, pad_size), 'constant')
         else:
             return np.array([
                 self.transform_single(w)
