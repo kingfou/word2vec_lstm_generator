@@ -2,6 +2,7 @@ import numpy as np
 import string
 from collections import defaultdict
 from sklearn.base import BaseEstimator, TransformerMixin
+from scipy.spatial import distance
 # from sklearn.feature_extraction.text import TfidfVectorizer
 
 WORD2VEC = None
@@ -39,6 +40,25 @@ class Word2VecVectorizer(BaseEstimator, TransformerMixin):
         return np.pad(self.word2vec[w], (0, self.punct_length), 'constant') \
             if w in self.word2vec.keys() \
             else self.get_weight(w)
+
+    def inverse_transform_single(self, X):
+        X_vec = X[:self.w2v_dim]
+        if np.any(X_vec):
+            min_dist = None
+            min_word = ''
+            for word in self.word2vec.keys():
+                dist = np.linalg.norm(self.word2vec[word] - X_vec)
+                # dist = distance.euclidean(self.word2vec[word], X_vec)
+                if min_dist is None or dist < min_dist:
+                    min_dist = dist
+                    min_word = word
+            return min_word
+        else:
+            indice = np.nonzero(X[self.w2v_dim:])
+            if not indice:
+                return ''
+            else:
+                return self.punct[indice[0]]
 
     def fit(self, X, y):
         return self

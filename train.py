@@ -9,11 +9,13 @@ def load_data(use_cached=True):
         data = joblib.load(open(CACHE_FILENAME, 'rb'))
         X_train = data['X_train']
         y_train = data['y_train']
+        vectorizer = data['vectorizer']
     else:
-        X_train, y_train = get_train_data()
+        X_train, y_train, vectorizer = get_train_data()
         data = {
             'X_train': X_train,
-            'y_train': y_train
+            'y_train': y_train,
+            'vectorizer': vectorizer
         }
         joblib.dump(data, open(CACHE_FILENAME, 'wb'), compress=True)
-    return X_train, y_train
+    return X_train, y_train, vectorizer
