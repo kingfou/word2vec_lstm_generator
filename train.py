@@ -32,10 +32,10 @@ def build_model():
     model.add(LSTM(256, input_shape=(X_train.shape[1], X_train.shape[2])))
     model.add(Dropout(0.2))
     model.add(Dense(vectorizer.dim, 
-        activation='identity',
+        activation='linear',
         kernel_regularizer=regularizers.l2(0.01), 
         activity_regularizer=regularizers.l1(0.01)))
-    model.compile(loss='rmse', optimizer='adam')
+    model.compile(loss='mean_squared_error', optimizer='adam')
     
     FILE_PATH='weights-{epoch:02d}-{loss:.4f}.h5'
     callbacks = [

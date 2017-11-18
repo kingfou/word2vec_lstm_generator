@@ -103,3 +103,5 @@ ENV/
 glove/
 corpus/
 *.pickle
+
+logs/
