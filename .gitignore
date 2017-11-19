@@ -107,3 +107,5 @@ corpus/
 logs/
 
 *.h5
+
+\.vscode/settings\.json

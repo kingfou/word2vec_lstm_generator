@@ -25,25 +25,28 @@ def load_data(use_cached=True):
         joblib.dump(data, open(CACHE_FILENAME, 'wb'), compress=True)
     return X_train, y_train, vectorizer
 
-def build_model():
+def build_model(from_file=None):
     X_train, y_train, vectorizer = load_data()
     
-    model = Sequential()
-    model.add(LSTM(256, input_shape=(X_train.shape[1], X_train.shape[2])))
-    model.add(Dropout(0.2))
-    model.add(Dense(vectorizer.dim, 
-        activation='linear',
-        kernel_regularizer=regularizers.l2(0.01), 
-        activity_regularizer=regularizers.l1(0.01)))
-    model.compile(loss='mean_squared_error', optimizer='adam')
-    
+    if from_file:
+        model = load_model(from_file)
+    else:
+        model = Sequential()
+        model.add(LSTM(256, input_shape=(X_train.shape[1], X_train.shape[2])))
+        model.add(Dropout(0.2))
+        model.add(Dense(vectorizer.dim, 
+            activation='linear',
+            kernel_regularizer=regularizers.l2(0.01), 
+            activity_regularizer=regularizers.l1(0.01)))
+        model.compile(loss='mean_squared_error', optimizer='adam')
+        
     FILE_PATH='weights-{epoch:02d}-{loss:.4f}.h5'
     callbacks = [
         TensorBoard(log_dir='./logs'),
         ModelCheckpoint(FILE_PATH, 
             monitor='loss', 
             verbose=1, 
-            save_best_only=True, 
+            save_best_only=False, 
             mode='min',
             period=20)
     ]
